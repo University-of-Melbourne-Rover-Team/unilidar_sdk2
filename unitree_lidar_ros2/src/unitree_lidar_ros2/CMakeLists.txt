@@ -12,8 +12,14 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-dev)
 endif()
+
+add_compile_options(-Wno-dev)
+
+cmake_policy(SET CMP0074 NEW)
+cmake_policy(SET CMP0144 NEW)
+
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -39,19 +45,18 @@ add_definitions(${PCL_DEFINITIONS})
 
 add_executable(unitree_lidar_ros2_node src/unitree_lidar_ros2_node.cpp)
 
-target_link_libraries( unitree_lidar_ros2_node
+target_link_libraries(unitree_lidar_ros2_node
+  PUBLIC
+  rclcpp::rclcpp
+  tf2_ros::tf2_ros
+  pcl_conversions::pcl_conversions
+  ${std_msgs_TARGETS}
+  ${sensor_msgs_TARGET}
+  ${geometry_msgs_TARGET}
+  PRIVATE
   ${Boost_SYSTEM_LIBRARY}
   ${PCL_LIBRARIES}
   libunilidar_sdk2.a
-)
-
-ament_target_dependencies(
-  unitree_lidar_ros2_node
-  rclcpp std_msgs 
-  sensor_msgs
-  geometry_msgs 
-  tf2_ros
-  pcl_conversions
 )
 
 install(TARGETS
